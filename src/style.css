@@ -1,11 +1,13 @@
 :root {
     --bg: #0a0e17;
-    --line: #1b2740;
+    --line: #1a2538;
     --ink: #dfe7f2;
     --ink-dim: #94a3ba;
     --accent: #7aa6e8;
     --danger: #ff7a7a;
-    --focus: #a8c8ff;
+    --focus: #8fd0ff;
+    --focus-select-bg: #2c3f61;
+    --danger-select-bg: #c23c3c;
     --hair: max(1px, 0.0625rem);
     --hair-edge: max(2px, 0.0625rem);
     --row: clamp(3.25rem, 16vw, 4rem);
@@ -189,6 +191,7 @@ header {
     word-wrap: break-word;
     overflow-wrap: break-word;
     overflow-y: auto;
+    caret-color: var(--focus);
 }
 
 .oneline {
@@ -199,11 +202,29 @@ header {
     color: var(--ink-dim);
 }
 
+::selection {
+    background: var(--focus-select-bg);
+    color: var(--ink);
+}
+
+/* campo em estado de erro: seleção acompanha a cor de erro */
+.panel.err ::selection {
+    background: var(--danger-select-bg);
+    color: var(--ink);
+}
+
 /* a bio delega a cor do texto ao espelho: o texto real fica transparente
    (com o caret visível) e o espelho pinta o normal e o excedente */
 #bio {
     color: transparent;
-    caret-color: var(--ink);
+    caret-color: var(--focus);
+}
+
+/* a seleção "de verdade" acontece nessa textarea invisível, mas quem
+   pinta o fundo é o overlay do .mirror (script.js/buildMirror) — sem
+   isso o fundo nativo (opaco) ficaria por cima do texto colorido */
+#bio::selection {
+    background: transparent;
 }
 
 .mirror {
@@ -212,14 +233,42 @@ header {
     user-select: none;
 }
 
+/* overlay de seleção: normal usa focus-select-bg, trecho excedente
+   usa danger — ambos com texto ink, independente da cor original.
+   box-decoration-break:clone + padding-block repete o padding em CADA
+   linha quebrada (o padrão "slice" só aplica no primeiro/último
+   fragmento), fechando o vão que o line-height deixa entre as linhas */
+.mirror .sel-normal,
+.mirror .sel-danger {
+    padding-block: 0.25em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.mirror .sel-normal {
+    background: var(--focus-select-bg);
+    color: var(--ink);
+}
+
+.mirror .sel-danger {
+    background: var(--danger-select-bg);
+    color: var(--ink);
+}
+
 .mirror mark {
     background: transparent;
     color: var(--danger);
 }
 
-/* qualquer campo em estado de erro: fonte inteira na cor de erro */
+/* qualquer campo em estado de erro: fonte inteira na cor de erro,
+   caret acompanha a mesma cor da borda (--danger) do painel */
 .panel.err textarea {
     color: var(--danger);
+    caret-color: var(--danger);
+}
+
+.panel.err input {
+    caret-color: var(--danger);
 }
 
 /* ---------- rodapé: linha de erro em cima, linha de botões embaixo ---------- */
@@ -253,6 +302,16 @@ footer .btn {
 
 #save {
     border-right: var(--hair) solid var(--line);
+}
+
+/* só existe em Android/iOS de verdade (detecção via JS em script.js) */
+#hideKb {
+    display: none;
+    border-right: var(--hair) solid var(--line);
+}
+
+.app.mobile-os #hideKb {
+    display: grid;
 }
 
 #save.saved {
