@@ -1,5 +1,5 @@
 (() => {
-    const LIMIT = 600,
+    const LIMIT = 15,
         KEY = "perfil.rascunho",
         LAST = 2;
     const $ = (id) => document.getElementById(id);
@@ -15,6 +15,7 @@
         back = $("back"),
         next = $("next"),
         save = $("save"),
+        hideKb = $("hideKb"),
         erase = $("erase"),
         stepNow = $("stepNow"),
         nextIcon = $("nextIcon");
@@ -42,6 +43,39 @@
     const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
 
     const isOver = () => bio.value.length > LIMIT;
+
+    /* monta o mirror cruzando dois cortes independentes no texto:
+       o limite (excedente vira <mark>) e a seleção nativa da textarea
+       (o navegador não permite duas cores de ::selection num mesmo
+       campo, então a seleção "visível" é pintada aqui, span a span) */
+    function buildMirror(v, over) {
+        const hasSel = document.activeElement === bio && bio.selectionStart !== bio.selectionEnd;
+        const selStart = hasSel ? bio.selectionStart : 0,
+            selEnd = hasSel ? bio.selectionEnd : 0;
+
+        const cuts = new Set([0, v.length]);
+        if (over) cuts.add(LIMIT);
+        if (hasSel) {
+            cuts.add(selStart);
+            cuts.add(selEnd);
+        }
+        const points = [...cuts].filter((p) => p >= 0 && p <= v.length).sort((a, b) => a - b);
+
+        let html = "";
+        for (let i = 0; i < points.length - 1; i++) {
+            const a = points[i],
+                b = points[i + 1];
+            if (a === b) continue;
+            const text = esc(v.slice(a, b));
+            const isExcess = over && a >= LIMIT;
+            const isSelected = hasSel && a >= selStart && b <= selEnd;
+            if (isSelected) html += '<span class="' + (isExcess ? "sel-danger" : "sel-normal") + '">' + text + "</span>";
+            else if (isExcess) html += "<mark>" + text + "</mark>";
+            else html += text;
+        }
+        return html;
+    }
+
     /* simulação de nome indisponível; troque por checagem no servidor */
     const TAKEN = ["amarildo"];
     const nameTaken = () => TAKEN.includes(user.value.trim().toLowerCase());
@@ -51,8 +85,12 @@
         const over = isOver(),
             v = bio.value;
 
-        mirror.innerHTML = over ? esc(v.slice(0, LIMIT)) + "<mark>" + esc(v.slice(LIMIT)) + "</mark>" : esc(v) + "\n";
+        mirror.innerHTML = buildMirror(v, over) + (over ? "" : "\n");
         overEl.textContent = over ? "-" + (v.length - LIMIT) : "";
+
+        /* caret acompanha a cor do texto onde ele está: focus no trecho
+           normal, danger a partir do caractere que já é excedente */
+        bio.style.caretColor = over && bio.selectionEnd > LIMIT ? "var(--danger)" : "var(--focus)";
 
         app.classList.toggle("over", step === 2 && over);
         bioPanel.classList.toggle("over", over);
@@ -129,6 +167,13 @@
     bio.addEventListener("scroll", () => {
         mirror.scrollTop = bio.scrollTop;
     });
+    /* re-desenha o mirror quando a seleção muda sem disparar "input"
+       (arrastar o mouse, Shift+setas, Ctrl+A) e ao perder o foco,
+       para o overlay de seleção acompanhar exatamente a seleção real */
+    document.addEventListener("selectionchange", () => {
+        if (document.activeElement === bio) render();
+    });
+    bio.addEventListener("blur", render);
 
     /* fallback: se algum navegador ainda rolar o clip ao focar, zera na hora */
     clip.addEventListener("scroll", () => {
@@ -173,6 +218,13 @@
         setTimeout(() => save.classList.remove("saved"), 900);
     });
 
+    /* ---------- fechar teclado: tira o foco do campo da etapa atual.
+       sem preventDefault no mousedown (ao contrário dos outros botões
+       da barra) — aqui o objetivo é justamente perder o foco. no iOS
+       Safari um <button> tocado nem sempre rouba o foco sozinho, por
+       isso o blur() explícito no campo ativo */
+    hideKb.addEventListener("click", () => inputs[step].blur());
+
     /* ---------- borracha: só o excedente ---------- */
     erase.addEventListener("mousedown", (e) => e.preventDefault());
     erase.addEventListener("click", () => {
@@ -215,6 +267,12 @@
         { passive: true },
     );
 
+    /* ---------- botão de fechar teclado: só em Android/iOS reais.
+       iPadOS se identifica como "MacIntel" no userAgent — o que o
+       distingue de um Mac de verdade é ter tela touch (maxTouchPoints) */
+    const isMobileOS = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    app.classList.toggle("mobile-os", isMobileOS);
+
     /* ---------- teclado nativo: Chrome e Safari ---------- */
     const vv = window.visualViewport;
     if (vv) {
@@ -236,7 +294,7 @@
         step = Math.max(0, Math.min(LAST, d.step || 0));
     } catch (e) {}
     track.style.transition = "none";
-    go(step, false);
+    go(step, true);
     requestAnimationFrame(() => {
         track.style.transition = "";
     });
