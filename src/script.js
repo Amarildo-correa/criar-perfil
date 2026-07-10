@@ -16,6 +16,8 @@
         next = $("next"),
         save = $("save"),
         hideKb = $("hideKb"),
+        landing = $("landing"),
+        startBtn = $("startBtn"),
         erase = $("erase"),
         stepNow = $("stepNow"),
         nextIcon = $("nextIcon");
@@ -189,6 +191,14 @@
         });
     });
 
+    /* ---------- landing: o toque no CTA é o gesto real do usuário que
+       permite o focus()/teclado funcionar em mobile — um focus() disparado
+       sozinho no carregamento da página é ignorado por iOS Safari/Android */
+    startBtn.addEventListener("click", () => {
+        app.classList.add("started");
+        go(step, true);
+    });
+
     /* ---------- navegação ---------- */
     [back, next].forEach((b) => b.addEventListener("mousedown", (e) => e.preventDefault()));
     back.addEventListener("click", () => go(step - 1));
@@ -294,7 +304,7 @@
         step = Math.max(0, Math.min(LAST, d.step || 0));
     } catch (e) {}
     track.style.transition = "none";
-    go(step, true);
+    go(step, false);
     requestAnimationFrame(() => {
         track.style.transition = "";
     });

@@ -154,6 +154,67 @@ header {
     }
 }
 
+/* landing: cobre o trilho até o toque do usuário no CTA — é esse toque
+   (gesto real) que permite o focus()/teclado funcionar em mobile;
+   um focus() disparado sozinho no carregamento da página é ignorado
+   por navegadores mobile (iOS Safari e Android) */
+.landing {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: var(--pad);
+    background: var(--bg);
+    border: var(--hair) solid var(--focus);
+    text-align: center;
+}
+
+.app.started .landing {
+    display: none;
+}
+
+.landing-title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--ink);
+}
+
+.landing-title span {
+    color: var(--accent);
+}
+
+/* o CTA ocupa o lugar da .bar inteira (voltar/salvar/fechar teclado/
+   avançar) até o usuário tocar em "Criar perfil" — depois disso os
+   dois papéis se invertem */
+.landing-cta {
+    display: none;
+    width: 100%;
+    height: var(--row);
+    border: 0;
+    background: transparent;
+    color: var(--accent);
+    font: inherit;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+}
+
+.app:not(.started) .landing-cta {
+    display: grid;
+    place-items: center;
+}
+
+.app:not(.started) .bar {
+    display: none;
+}
+
+.landing-cta:focus-visible {
+    box-shadow: inset 0 0 0 var(--hair) var(--focus);
+    outline: 0;
+}
+
 .panel {
     position: relative;
     overflow: hidden;
