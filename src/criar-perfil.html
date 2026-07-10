@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+        <title>Criar perfil</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="app" id="app">
+            <header>
+                <button class="btn" id="exit" aria-label="Sair do formulário">
+                    <svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" /></svg>
+                </button>
+                <div class="step-title" id="title">CRIAR <span>CONTA</span></div>
+                <div class="step-state" aria-live="polite" aria-label="Etapa atual de total">
+                    <div class="icon-cell" id="stepNow">1</div>
+                    <div class="icon-cell step-total">3</div>
+                </div>
+            </header>
+
+            <div class="track-clip" id="clip">
+                <div class="track" id="track">
+                    <div class="panel" data-step="0">
+                        <textarea id="user" class="oneline" placeholder="Qual é o seu nome?" autocomplete="off" spellcheck="false" enterkeyhint="next" rows="1"></textarea>
+                    </div>
+                    <div class="panel" data-step="1">
+                        <textarea id="role" class="oneline" placeholder="Qual é a sua profissão?" autocomplete="off" enterkeyhint="next" rows="1"></textarea>
+                    </div>
+                    <div class="panel" data-step="2" id="bioPanel">
+                        <div class="mirror" id="mirror" aria-hidden="true"></div>
+                        <textarea id="bio" placeholder="Conte um pouco sobre você." maxlength="1200"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <div class="error-msg" id="nameErr" role="alert">Nome em uso</div>
+
+                <div class="bar">
+                    <button class="btn" id="back" aria-label="Voltar etapa">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 12H6" />
+                            <path d="M11 6l-6 6 6 6" />
+                        </svg>
+                    </button>
+                    <button class="btn" id="save" aria-label="Salvar rascunho">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M4 4h12l4 4v12H4z" />
+                            <path d="M8 4v5h7" />
+                            <path d="M8 20v-6h8v6" />
+                        </svg>
+                    </button>
+
+                    <div class="end-group">
+                        <div class="over-count" id="over" role="status" aria-label="Caracteres excedidos"></div>
+
+                        <button class="btn" id="erase" aria-label="Apagar texto excedido">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M16 3l5 5-9 9H7l-4-4z" />
+                                <path d="M9 21h12" />
+                            </svg>
+                        </button>
+                        <button class="btn" id="next" aria-label="Prosseguir">
+                            <svg viewBox="0 0 24 24" id="nextIcon">
+                                <path d="M4 12h14" />
+                                <path d="M13 6l6 6-6 6" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <script src="script.js"></script>
+    </body>
+</html>
