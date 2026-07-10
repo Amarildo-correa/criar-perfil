@@ -1,0 +1,8 @@
+# Rastreia apenas a pasta src/ neste repositório
+/*
+!/src/
+!/src/**
+!/.gitignore
+!/.github/
+!/.github/**
+
