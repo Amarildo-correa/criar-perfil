@@ -303,6 +303,7 @@ header {
     font: inherit;
     line-height: 1.55;
     resize: none;
+    appearance: none;
     -webkit-appearance: none;
     /* texto nasce no topo e quebra ao chegar na largura da viewport */
     white-space: pre-wrap;
