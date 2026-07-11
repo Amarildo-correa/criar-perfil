@@ -311,38 +311,6 @@
         bio.setSelectionRange(LIMIT, LIMIT);
     });
 
-    /* ---------- Touch API: deslizar para trocar de etapa ---------- */
-    let x0 = null,
-        y0 = null,
-        t0 = 0;
-    clip.addEventListener(
-        "touchstart",
-        (e) => {
-            const t = e.touches[0];
-            x0 = t.clientX;
-            y0 = t.clientY;
-            t0 = Date.now();
-        },
-        { passive: true },
-    );
-
-    clip.addEventListener(
-        "touchend",
-        (e) => {
-            if (x0 === null) return;
-            const t = e.changedTouches[0];
-            const dx = t.clientX - x0,
-                dy = t.clientY - y0,
-                dt = Date.now() - t0;
-            x0 = y0 = null;
-            /* gesto horizontal intencional: distância mínima, mais largura que altura, rápido */
-            if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5 || dt > 600) return;
-            if (dx < 0 && step < LAST && validStep(step)) go(step + 1); /* esquerda → próxima */
-            else if (dx > 0 && step > 0) go(step - 1); /* direita → anterior */
-        },
-        { passive: true },
-    );
-
     /* ---------- botão de fechar teclado: só em Android/iOS reais.
        iPadOS se identifica como "MacIntel" no userAgent — o que o
        distingue de um Mac de verdade é ter tela touch (maxTouchPoints) */
