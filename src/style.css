@@ -1,3 +1,50 @@
+/* ---------- design system: mosaico de bordas ----------
+   Duas categorias de cor, duas regras diferentes:
+
+   1) --line (cor neutra, comum): borda compartilhada entre duas
+   células vizinhas da MESMA cor é declarada uma única vez — no lado
+   do elemento que vem primeiro no DOM (ex.: #exit/#back/#save/#hideKb
+   usam border-right; .step-state .icon-cell e #next usam border-left
+   do lado seguinte; .under-count usa só border-left). Nunca declare
+   o mesmo lado duas vezes com --line: duas hairlines --line
+   encostadas ficam mais grossas/duplicadas sem necessidade. Célula
+   que encosta na moldura externa do .app com a MESMA cor --line
+   também não repete — a moldura já cumpre esse papel.
+
+   2) --focus, --accent, --danger (cores de destaque/estado): ao
+   contrário da regra 1, essas SEMPRE se declaram nos 4 lados do
+   próprio elemento, mesmo que algum desses lados coincida com uma
+   borda --line já existente (moldura do .app, footer, vizinho) — a
+   cor de destaque tem que aparecer por cima da linha comum, nunca
+   ficar "escondida" atrás dela por omissão. É assim que .over-count
+   e #erase (--danger, só existem com .app.over ativo) ficam com os
+   4 lados sempre visíveis mesmo tocando bordas --line neutras.
+   MAS: se dois elementos vizinhos declaram a MESMA cor de destaque
+   no lado que se encosta (ex.: .over-count border-right e #erase
+   border-left, os dois --danger), aplica a regra 1 de novo — só um
+   dos dois declara aquele lado (o primeiro no DOM), pra não duplicar
+   a espessura entre duas bordas idênticas.
+
+   Um elemento que contém mais de uma tag/subcélula (ex.: #next com
+   label + ícone) repete essa mesma lógica internamente: cada
+   subcélula fecha sua própria borda, como se fosse mais um item do
+   mosaico — nunca uma borda só no container de fora.
+   Cuidado especial com elementos cuja posição muda por estado (ex.:
+   .under-count só é o último item visível quando #erase/#next estão
+   escondidos) — a borda tem que refletir a posição real na fileira
+   naquele estado, não a ordem no DOM.
+   Toda tag/célula nunca fica mais estreita do que alta: largura
+   mínima igual à própria altura (min-width: var(--row), a mesma
+   medida que a altura usa), formando um quadrado como piso — pode
+   crescer além disso se o conteúdo pedir (ex.: "+15" ou "PULAR"),
+   nunca encolher abaixo. .btn e .icon-cell já cumprem isso via
+   aspect-ratio: 1/1 (largura e altura sempre iguais, porque o
+   conteúdo — ícone — nunca varia); células com texto de largura
+   variável (.over-count, .under-count, .next-label) usam min-width
+   em vez de aspect-ratio pelo mesmo motivo. Não se aplica a barras
+   intencionalmente largas como .error-msg, .step-title ou
+   .landing-cta — essas ocupam a fileira inteira por design, não são
+   células do mosaico. */
 :root {
     --bg: #0a0e17;
     --line: #1a2538;
@@ -343,7 +390,7 @@ footer {
 .bar {
     display: flex;
     align-items: stretch;
-    height: var(--row);
+    height: 100%;
 }
 
 footer .btn {
@@ -418,15 +465,46 @@ footer .btn {
     display: none;
 }
 
+/* .over-count só existe com .app.over ativo (ver .end-group > * e a
+   regra .app.over abaixo), então a borda já nasce na cor do estado —
+   não tem variante neutra pra manter, os 4 lados são sempre danger.
+   margin-top negativo: o border-top do footer (--line) pertence à caixa
+   do próprio footer, por cima da caixa de .bar — sem isso, essa hairline
+   neutra sobraria como uma tira separando o topo do vermelho do fim do
+   .track-clip. O negativo puxa a caixa 1 hair pra cima (align-items:
+   stretch soma essa margem à altura), cobrindo aquele pixel com o
+   border-top danger e deixando as duas caixas encostadas de fato */
 .over-count {
     place-items: center;
+    min-width: var(--row);
     padding: 0 var(--pad);
+    margin-top: calc(-1 * var(--hair));
+    border: var(--hair) solid var(--danger);
     color: var(--danger);
     font-weight: 700;
     white-space: nowrap;
 }
 
+/* inverso do over-count: mostra quanto falta (não quanto passou),
+   some assim que o mínimo é atingido e o botão next toma seu lugar
+   no grid (mesma posição, nunca coexistem — ver .end-group > *).
+   Cor --line (neutra) ⇒ regra 1 do topo do arquivo: só um lado.
+   under-count é sempre o item mais à direita do end-group — top,
+   bottom e right coincidem com bordas --line já existentes (footer,
+   .app, moldura direita) e não são redeclarados (duplicariam a
+   mesma cor). Só left é próprio, separando do vão vazio à esquerda */
+.under-count {
+    place-items: center;
+    min-width: var(--row);
+    padding: 0 var(--pad);
+    border-left: var(--hair) solid var(--line);
+    color: var(--ink-dim);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 #erase {
+    margin-top: calc(-1 * var(--hair));
     color: var(--danger);
 }
 
@@ -435,8 +513,20 @@ footer .btn {
     display: grid;
 }
 
+/* --danger ⇒ regra 2 do topo do arquivo: sempre aparece por cima da
+   linha --line, mesmo tocando a moldura do .app (right) ou o footer/
+   .app (top/bottom) — por isso os 3 lados são redeclarados aqui.
+   left fica de fora: colidiria com o border-right --danger do
+   .over-count (mesma cor de destaque encostando) — nesse caso volta
+   a regra 1, só um dos dois declara, e over-count é quem já declara */
 .app.over #erase {
-    box-shadow: inset 0 0 0 var(--hair) var(--danger);
+    border-top: var(--hair) solid var(--danger);
+    border-right: var(--hair) solid var(--danger);
+    border-bottom: var(--hair) solid var(--danger);
+}
+
+.app.under .under-count {
+    display: grid;
 }
 
 #next {
@@ -444,5 +534,43 @@ footer .btn {
 }
 
 .app.ok #next {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* #next passa a conter duas tags (label "PULAR" + ícone) quando a
+   etapa é opcional — cada uma é uma subcélula do mosaico com sua
+   própria borda, nunca uma borda só no <button> por fora (ver nota
+   de design system no topo do arquivo) */
+.next-label {
+    display: none;
+}
+
+.next-icon-cell {
     display: grid;
+    place-items: center;
+    aspect-ratio: 1/1;
+    width: var(--row);
+    flex: none;
+}
+
+/* campo opcional (bio vazia): next já fica disponível como "pular",
+   por isso ganha rótulo ao lado do ícone — os demais passos continuam
+   quadrados (aspect-ratio 1/1) até o mínimo ser atingido */
+.app.skip #next {
+    width: auto;
+    aspect-ratio: auto;
+    justify-content: flex-start;
+}
+
+.app.skip .next-label {
+    display: grid;
+    place-items: center;
+    min-width: var(--row);
+    height: 100%;
+    padding-inline: var(--pad);
+    border-right: var(--hair) solid var(--line);
+    font-weight: 600;
+    letter-spacing: 0.03em;
 }
