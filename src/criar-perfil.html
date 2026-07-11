@@ -13,9 +13,8 @@
                     <svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19" /></svg>
                 </button>
                 <div class="step-title" id="title">CRIAR <span>CONTA</span></div>
-                <div class="step-state" aria-live="polite" aria-label="Etapa atual de total">
-                    <div class="icon-cell" id="stepNow">1</div>
-                    <div class="icon-cell step-total">3</div>
+                <div class="step-state icon-cell" aria-live="polite" aria-label="Etapa atual de total">
+                    <span id="stepNow">1</span><span class="step-total">/3</span>
                 </div>
             </header>
 
@@ -23,13 +22,16 @@
                 <div class="track" id="track">
                     <div class="panel" data-step="0">
                         <textarea id="user" class="oneline" placeholder="Qual é o seu nome?" autocomplete="off" spellcheck="false" enterkeyhint="next" rows="1"></textarea>
+                        <div class="fake-caret" aria-hidden="true"><svg><path class="drop" /></svg></div>
                     </div>
                     <div class="panel" data-step="1">
                         <textarea id="role" class="oneline" placeholder="Qual é a sua profissão?" autocomplete="off" enterkeyhint="next" rows="1"></textarea>
+                        <div class="fake-caret" aria-hidden="true"><svg><path class="drop" /></svg></div>
                     </div>
                     <div class="panel" data-step="2" id="bioPanel">
                         <div class="mirror" id="mirror" aria-hidden="true"></div>
-                        <textarea id="bio" placeholder="Conte um pouco sobre você." maxlength="1200"></textarea>
+                        <textarea id="bio" placeholder="Conte um pouco sobre você (opcional)." maxlength="1200"></textarea>
+                        <div class="fake-caret" aria-hidden="true"><svg><path class="drop" /></svg></div>
                     </div>
                 </div>
 
@@ -48,13 +50,6 @@
                         <svg viewBox="0 0 24 24">
                             <path d="M20 12H6" />
                             <path d="M11 6l-6 6 6 6" />
-                        </svg>
-                    </button>
-                    <button class="btn" id="save" aria-label="Salvar rascunho">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M4 4h12l4 4v12H4z" />
-                            <path d="M8 4v5h7" />
-                            <path d="M8 20v-6h8v6" />
                         </svg>
                     </button>
                     <button class="btn" id="hideKb" aria-label="Fechar teclado">
@@ -76,7 +71,6 @@
                             </svg>
                         </button>
                         <button class="btn" id="next" aria-label="Prosseguir">
-                            <span class="next-label" id="nextLabel"></span>
                             <span class="next-icon-cell">
                                 <svg viewBox="0 0 24 24" id="nextIcon">
                                     <path d="M4 12h14" />
