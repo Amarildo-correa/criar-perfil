@@ -67,6 +67,7 @@
 
                     <div class="end-group">
                         <div class="over-count" id="over" role="status" aria-label="Caracteres excedidos"></div>
+                        <div class="under-count" id="under" role="status" aria-label="Caracteres mínimos restantes"></div>
 
                         <button class="btn" id="erase" aria-label="Apagar texto excedido">
                             <svg viewBox="0 0 24 24">
@@ -75,10 +76,13 @@
                             </svg>
                         </button>
                         <button class="btn" id="next" aria-label="Prosseguir">
-                            <svg viewBox="0 0 24 24" id="nextIcon">
-                                <path d="M4 12h14" />
-                                <path d="M13 6l6 6-6 6" />
-                            </svg>
+                            <span class="next-label" id="nextLabel"></span>
+                            <span class="next-icon-cell">
+                                <svg viewBox="0 0 24 24" id="nextIcon">
+                                    <path d="M4 12h14" />
+                                    <path d="M13 6l6 6-6 6" />
+                                </svg>
+                            </span>
                         </button>
                     </div>
                 </div>

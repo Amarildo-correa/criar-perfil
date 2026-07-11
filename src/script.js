@@ -1,7 +1,8 @@
 (() => {
     const LIMIT = 15,
         KEY = "perfil.rascunho",
-        LAST = 2;
+        LAST = 2,
+        MIN_LEN = { 0: 8, 1: 6 };
     const $ = (id) => document.getElementById(id);
     const app = $("app"),
         track = $("track"),
@@ -12,8 +13,10 @@
         bioPanel = $("bioPanel"),
         mirror = $("mirror"),
         overEl = $("over"),
+        underEl = $("under"),
         back = $("back"),
         next = $("next"),
+        nextLabel = $("nextLabel"),
         save = $("save"),
         hideKb = $("hideKb"),
         landing = $("landing"),
@@ -81,7 +84,9 @@
     /* simulação de nome indisponível; troque por checagem no servidor */
     const TAKEN = ["amarildo"];
     const nameTaken = () => TAKEN.includes(user.value.trim().toLowerCase());
-    const validStep = (i) => (i === 2 ? bio.value.trim().length > 0 && !isOver() : i === 0 ? user.value.trim().length > 0 && !nameTaken() : inputs[i].value.trim().length > 0);
+    /* bio é opcional (sem mínimo): só invalida se ultrapassar o LIMIT.
+       user/role exigem MIN_LEN caracteres além de não-vazio/nome livre */
+    const validStep = (i) => (i === 2 ? !isOver() : i === 0 ? user.value.trim().length >= MIN_LEN[0] && !nameTaken() : role.value.trim().length >= MIN_LEN[1]);
 
     function render() {
         const over = isOver(),
@@ -102,8 +107,23 @@
         app.classList.toggle("err", step === 0 && taken);
         user.closest(".panel").classList.toggle("err", taken);
 
+        /* contador mínimo (inverso do over-count): só aparece depois do
+           primeiro caractere e some assim que o mínimo é atingido — o
+           next (via .ok) toma o lugar dele no mesmo quadrado */
+        const min = MIN_LEN[step];
+        const len = min !== undefined ? inputs[step].value.trim().length : 0;
+        const missing = min !== undefined && len > 0 ? min - len : 0;
+        app.classList.toggle("under", missing > 0);
+        underEl.textContent = missing > 0 ? "+" + missing : "";
+
         /* prosseguir só aparece com o input da etapa atual ok */
         app.classList.toggle("ok", validStep(step));
+
+        /* bio é opcional: com o campo vazio o next já pode "pular" a
+           etapa, ganhando o rótulo ao lado do ícone */
+        const skip = step === LAST && bio.value.trim().length === 0;
+        app.classList.toggle("skip", skip);
+        nextLabel.textContent = skip ? "PULAR" : "";
 
         /* seta vira "check" na última etapa */
         nextIcon.innerHTML = step === LAST ? '<path d="M4 12l6 6L20 7"/>' : '<path d="M4 12h14"/><path d="M13 6l6 6-6 6"/>';
