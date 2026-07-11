@@ -1,8 +1,18 @@
-# Rastreia apenas a pasta src/ neste repositório
-/*
-!/src/
-!/src/**
-!/.gitignore
-!/.github/
-!/.github/**
+.playwright-cli
+node_modules
+test-results
+playwright-report/
 
+# ambiente
+.env
+.env.*
+
+# SO / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Claude Code (config local, não compartilhada)
+.claude/settings.local.json
