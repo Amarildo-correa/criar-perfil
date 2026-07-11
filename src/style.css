@@ -3,8 +3,8 @@
 
    1) --line (cor neutra, comum): borda compartilhada entre duas
    células vizinhas da MESMA cor é declarada uma única vez — no lado
-   do elemento que vem primeiro no DOM (ex.: #exit/#back/#save/#hideKb
-   usam border-right; .step-state .icon-cell e #next usam border-left
+   do elemento que vem primeiro no DOM (ex.: #exit/#back/#hideKb
+   usam border-right; .step-state e #next usam border-left
    do lado seguinte; .under-count usa só border-left). Nunca declare
    o mesmo lado duas vezes com --line: duas hairlines --line
    encostadas ficam mais grossas/duplicadas sem necessidade. Célula
@@ -25,8 +25,17 @@
    dos dois declara aquele lado (o primeiro no DOM), pra não duplicar
    a espessura entre duas bordas idênticas.
 
+   3) Campo opcional (ex.: bio): vazio não bloqueia — .app.ok já libera
+   #next sem exigir nada, já que não há por que travar quem não quer
+   preencher algo opcional. Mas assim que o usuário digita o primeiro
+   caractere, o campo passa a valer o mesmo MIN_LEN dos campos
+   obrigatórios (user/role): abaixo do mínimo, .under-count reaparece
+   e .app.ok cai, exatamente como nos campos não-opcionais. Ou seja,
+   esvaziar de novo libera o avanço; parar pela metade não (ver
+   validStep/MIN_LEN em script.js).
+
    Um elemento que contém mais de uma tag/subcélula (ex.: #next com
-   label + ícone) repete essa mesma lógica internamente: cada
+   ícone) repete essa mesma lógica internamente: cada
    subcélula fecha sua própria borda, como se fosse mais um item do
    mosaico — nunca uma borda só no container de fora.
    Cuidado especial com elementos cuja posição muda por estado (ex.:
@@ -36,11 +45,11 @@
    Toda tag/célula nunca fica mais estreita do que alta: largura
    mínima igual à própria altura (min-width: var(--row), a mesma
    medida que a altura usa), formando um quadrado como piso — pode
-   crescer além disso se o conteúdo pedir (ex.: "+15" ou "PULAR"),
+   crescer além disso se o conteúdo pedir (ex.: "+15"),
    nunca encolher abaixo. .btn e .icon-cell já cumprem isso via
    aspect-ratio: 1/1 (largura e altura sempre iguais, porque o
    conteúdo — ícone — nunca varia); células com texto de largura
-   variável (.over-count, .under-count, .next-label) usam min-width
+   variável (.over-count, .under-count) usam min-width
    em vez de aspect-ratio pelo mesmo motivo. Não se aplica a barras
    intencionalmente largas como .error-msg, .step-title ou
    .landing-cta — essas ocupam a fileira inteira por design, não são
@@ -158,13 +167,14 @@ header {
 }
 
 .step-state {
-    display: grid;
-    grid-template-columns: var(--row) var(--row);
-}
-
-.step-state .icon-cell {
+    display: flex;
+    align-items: center;
+    aspect-ratio: auto;
+    width: auto;
+    padding: 0 1rem;
     border-left: var(--hair) solid var(--line);
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .step-state #stepNow {
@@ -306,6 +316,32 @@ header {
     font-size: 1.375rem;
 }
 
+/* gota decorativa sob o caret: substitui a alça nativa de inserção
+   (Android desenha essa gota sob o caret em qualquer campo tocado, mesmo
+   vazio) por uma versão nossa, visível só enquanto o campo está em modo
+   placeholder. O caret em si continua 100% nativo (cor, espessura de 1px
+   e piscar ficam por conta do navegador) — só a gota é nossa, encostada
+   na ponta de baixo de onde o caret nasceria. script.js mede via probe
+   essa posição e reposiciona a cada foco/digitação; left/top/width/height
+   vêm inline via JS */
+.fake-caret {
+    position: absolute;
+    display: none;
+    pointer-events: none;
+}
+
+.fake-caret.show {
+    display: block;
+}
+
+.fake-caret .drop {
+    fill: var(--focus);
+}
+
+.panel.err .fake-caret .drop {
+    fill: var(--danger);
+}
+
 ::placeholder {
     color: var(--ink-dim);
 }
@@ -408,22 +444,15 @@ footer .btn {
     display: grid;
 }
 
-#save {
-    border-right: var(--hair) solid var(--line);
-}
-
-/* só existe em Android/iOS de verdade (detecção via JS em script.js) */
+/* só existe em Android/iOS de verdade e com o teclado nativo aberto
+   (detecção via JS em script.js, classes .mobile-os e .kb-open) */
 #hideKb {
     display: none;
     border-right: var(--hair) solid var(--line);
 }
 
-.app.mobile-os #hideKb {
+.app.mobile-os.kb-open #hideKb {
     display: grid;
-}
-
-#save.saved {
-    color: #5ecf8a;
 }
 
 /* linha exclusiva do erro: ancorada em cima da barra de botões,
@@ -539,38 +568,10 @@ footer .btn {
     justify-content: center;
 }
 
-/* #next passa a conter duas tags (label "PULAR" + ícone) quando a
-   etapa é opcional — cada uma é uma subcélula do mosaico com sua
-   própria borda, nunca uma borda só no <button> por fora (ver nota
-   de design system no topo do arquivo) */
-.next-label {
-    display: none;
-}
-
 .next-icon-cell {
     display: grid;
     place-items: center;
     aspect-ratio: 1/1;
     width: var(--row);
     flex: none;
-}
-
-/* campo opcional (bio vazia): next já fica disponível como "pular",
-   por isso ganha rótulo ao lado do ícone — os demais passos continuam
-   quadrados (aspect-ratio 1/1) até o mínimo ser atingido */
-.app.skip #next {
-    width: auto;
-    aspect-ratio: auto;
-    justify-content: flex-start;
-}
-
-.app.skip .next-label {
-    display: grid;
-    place-items: center;
-    min-width: var(--row);
-    height: 100%;
-    padding-inline: var(--pad);
-    border-right: var(--hair) solid var(--line);
-    font-weight: 600;
-    letter-spacing: 0.03em;
 }
