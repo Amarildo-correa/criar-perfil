@@ -2,6 +2,8 @@
 
 Design system deste frontend estático ("Criar perfil"), documentado a partir do código real em `src/criar-perfil.html`, `src/script.js` e `src/style.css`. Nada aqui é template genérico — cada seção existe porque corresponde a um mecanismo de fato implementado.
 
+> Este documento é sincronizado automaticamente com o skill `design-doc` do plugin [Amarildo-correa/design-doc](https://github.com/Amarildo-correa/design-doc) a cada push em `main`.
+
 ## Índice
 
 - [Arquitetura geral](#arquitetura-geral)
