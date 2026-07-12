@@ -1,0 +1,19 @@
+name: Notifica design-doc sobre atualização do DESIGN.md
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "DESIGN.md"
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispara repository_dispatch no design-doc
+        run: |
+          curl -fsSL -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.DESIGN_DOC_DISPATCH_TOKEN }}" \
+            https://api.github.com/repos/Amarildo-correa/design-doc/dispatches \
+            -d '{"event_type":"design-doc-updated"}'
