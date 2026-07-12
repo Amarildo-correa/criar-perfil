@@ -1,59 +1,3 @@
-/* ---------- design system: mosaico de bordas ----------
-   Duas categorias de cor, duas regras diferentes:
-
-   1) --line (cor neutra, comum): borda compartilhada entre duas
-   células vizinhas da MESMA cor é declarada uma única vez — no lado
-   do elemento que vem primeiro no DOM (ex.: #exit/#back/#hideKb
-   usam border-right; .step-state e #next usam border-left
-   do lado seguinte; .under-count usa só border-left). Nunca declare
-   o mesmo lado duas vezes com --line: duas hairlines --line
-   encostadas ficam mais grossas/duplicadas sem necessidade. Célula
-   que encosta na moldura externa do .app com a MESMA cor --line
-   também não repete — a moldura já cumpre esse papel.
-
-   2) --focus, --accent, --danger (cores de destaque/estado): ao
-   contrário da regra 1, essas SEMPRE se declaram nos 4 lados do
-   próprio elemento, mesmo que algum desses lados coincida com uma
-   borda --line já existente (moldura do .app, footer, vizinho) — a
-   cor de destaque tem que aparecer por cima da linha comum, nunca
-   ficar "escondida" atrás dela por omissão. É assim que .over-count
-   e #erase (--danger, só existem com .app.over ativo) ficam com os
-   4 lados sempre visíveis mesmo tocando bordas --line neutras.
-   MAS: se dois elementos vizinhos declaram a MESMA cor de destaque
-   no lado que se encosta (ex.: .over-count border-right e #erase
-   border-left, os dois --danger), aplica a regra 1 de novo — só um
-   dos dois declara aquele lado (o primeiro no DOM), pra não duplicar
-   a espessura entre duas bordas idênticas.
-
-   3) Campo opcional (ex.: bio): vazio não bloqueia — .app.ok já libera
-   #next sem exigir nada, já que não há por que travar quem não quer
-   preencher algo opcional. Mas assim que o usuário digita o primeiro
-   caractere, o campo passa a valer o mesmo MIN_LEN dos campos
-   obrigatórios (user/role): abaixo do mínimo, .under-count reaparece
-   e .app.ok cai, exatamente como nos campos não-opcionais. Ou seja,
-   esvaziar de novo libera o avanço; parar pela metade não (ver
-   validStep/MIN_LEN em script.js).
-
-   Um elemento que contém mais de uma tag/subcélula (ex.: #next com
-   ícone) repete essa mesma lógica internamente: cada
-   subcélula fecha sua própria borda, como se fosse mais um item do
-   mosaico — nunca uma borda só no container de fora.
-   Cuidado especial com elementos cuja posição muda por estado (ex.:
-   .under-count só é o último item visível quando #erase/#next estão
-   escondidos) — a borda tem que refletir a posição real na fileira
-   naquele estado, não a ordem no DOM.
-   Toda tag/célula nunca fica mais estreita do que alta: largura
-   mínima igual à própria altura (min-width: var(--row), a mesma
-   medida que a altura usa), formando um quadrado como piso — pode
-   crescer além disso se o conteúdo pedir (ex.: "+15"),
-   nunca encolher abaixo. .btn e .icon-cell já cumprem isso via
-   aspect-ratio: 1/1 (largura e altura sempre iguais, porque o
-   conteúdo — ícone — nunca varia); células com texto de largura
-   variável (.over-count, .under-count) usam min-width
-   em vez de aspect-ratio pelo mesmo motivo. Não se aplica a barras
-   intencionalmente largas como .error-msg, .step-title ou
-   .landing-cta — essas ocupam a fileira inteira por design, não são
-   células do mosaico. */
 :root {
     --bg: #0a0e17;
     --line: #1a2538;
@@ -71,6 +15,31 @@
     /* respiro interno dos campos: texto nunca encosta na borda */
     --pad-field: clamp(1.25rem, 5.5vw, 1.625rem);
     --kb: 0px;
+
+    /* tipografia */
+    --font-size-sm: 1.0625rem;
+    --font-size-lg: 1.375rem;
+    --font-weight-regular: 400;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --line-height-base: 1.45;
+    --line-height-relaxed: 1.55;
+    --letter-spacing-sm: 0.03em;
+    --letter-spacing-md: 0.05em;
+
+    /* espaçamento */
+    --spacing-sm: 1rem;
+    --spacing-xs: 0.25em;
+
+    /* ícone */
+    --icon-size: 1.5rem;
+
+    /* animação */
+    --duration-base: 0.28s;
+
+    /* camadas (z-index) */
+    --z-index-sticky: 10;
+    --z-index-overlay: 20;
 }
 
 * {
@@ -90,7 +59,7 @@ body {
     background: var(--bg);
     color: var(--ink);
     font:
-        400 1.0625rem/1.45 "Segoe UI",
+        var(--font-weight-regular) var(--font-size-sm)/var(--line-height-base) "Segoe UI",
         system-ui,
         -apple-system,
         Roboto,
@@ -135,8 +104,8 @@ header {
 }
 
 .btn svg {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: var(--icon-size);
+    height: var(--icon-size);
     stroke: currentColor;
     fill: none;
     stroke-width: 1.7;
@@ -156,9 +125,9 @@ header {
 .step-title {
     align-self: center;
     padding-left: var(--pad);
-    font-size: 1.0625rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-md);
     color: var(--ink);
 }
 
@@ -171,9 +140,9 @@ header {
     align-items: center;
     aspect-ratio: auto;
     width: auto;
-    padding: 0 1rem;
+    padding: 0 var(--spacing-sm);
     border-left: var(--hair) solid var(--line);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     white-space: nowrap;
 }
 
@@ -202,7 +171,7 @@ header {
     grid-template-columns: repeat(3, 100%);
     height: 100%;
     transform: translateX(0);
-    transition: transform 0.28s cubic-bezier(0.3, 0.8, 0.3, 1);
+    transition: transform var(--duration-base) cubic-bezier(0.3, 0.8, 0.3, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -218,7 +187,7 @@ header {
 .landing {
     position: absolute;
     inset: 0;
-    z-index: 20;
+    z-index: var(--z-index-overlay);
     display: grid;
     place-items: center;
     padding: var(--pad);
@@ -232,9 +201,9 @@ header {
 }
 
 .landing-title {
-    font-size: 1.0625rem;
-    font-weight: 600;
-    letter-spacing: 0.03em;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-sm);
     color: var(--ink);
 }
 
@@ -253,8 +222,8 @@ header {
     background: transparent;
     color: var(--accent);
     font: inherit;
-    font-weight: 600;
-    letter-spacing: 0.03em;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-sm);
     cursor: pointer;
 }
 
@@ -301,7 +270,7 @@ header {
     outline: 0;
     color: var(--ink);
     font: inherit;
-    line-height: 1.55;
+    line-height: var(--line-height-relaxed);
     resize: none;
     appearance: none;
     -webkit-appearance: none;
@@ -314,7 +283,7 @@ header {
 }
 
 .oneline {
-    font-size: 1.375rem;
+    font-size: var(--font-size-lg);
 }
 
 /* gota decorativa sob o caret: substitui a alça nativa de inserção
@@ -385,7 +354,7 @@ header {
    fragmento), fechando o vão que o line-height deixa entre as linhas */
 .mirror .sel-normal,
 .mirror .sel-danger {
-    padding-block: 0.25em;
+    padding-block: var(--spacing-xs);
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
 }
@@ -419,7 +388,7 @@ header {
 /* ---------- rodapé: linha de erro em cima, linha de botões embaixo ---------- */
 footer {
     position: relative;
-    z-index: 10;
+    z-index: var(--z-index-sticky);
     background: var(--bg);
     border-top: var(--hair) solid var(--line);
 }
@@ -473,8 +442,8 @@ footer .btn {
     background: var(--bg);
     box-shadow: inset 0 0 0 var(--hair) var(--danger);
     color: var(--danger);
-    font-weight: 600;
-    letter-spacing: 0.03em;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: var(--letter-spacing-sm);
     white-space: nowrap;
 }
 
@@ -511,7 +480,7 @@ footer .btn {
     margin-top: calc(-1 * var(--hair));
     border: var(--hair) solid var(--danger);
     color: var(--danger);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     white-space: nowrap;
 }
 
@@ -529,7 +498,7 @@ footer .btn {
     padding: 0 var(--pad);
     border-left: var(--hair) solid var(--line);
     color: var(--ink-dim);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
     white-space: nowrap;
 }
 
