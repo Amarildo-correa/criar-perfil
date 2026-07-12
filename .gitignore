@@ -16,3 +16,6 @@ Thumbs.db
 
 # Claude Code (config local, não compartilhada)
 .claude/settings.local.json
+
+# notas pessoais de aprendizado, fora do escopo do projeto
+aprendizado/

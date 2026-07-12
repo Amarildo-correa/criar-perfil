@@ -2,7 +2,16 @@
 
 Instruções operacionais para agentes de IA que trabalham neste repositório. Leia antes de fazer qualquer alteração.
 
-Para arquitetura, design system e decisões de projeto, [DESIGN.md](DESIGN.md) é a fonte da verdade — consulte-o antes de alterar qualquer coisa em `src/`.
+Para arquitetura, design system e decisões de projeto, [DESIGN.md](DESIGN.md) é a fonte da verdade.
+
+## Restrições de escopo — leia antes de agir
+
+| Regra                                                                                          | Descrição                                                                                        |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `MUST` consultar `DESIGN.md` antes de criar ou alterar qualquer feature em `src/`              | usar os tokens e mecanismos reais do design system — nunca gerar design/CSS genérico do zero     |
+| `MUST NOT` usar `aprendizado/` como referência de arquitetura, convenções ou revisão de código | são notas pessoais fora do escopo do projeto, mesmo se versionadas                               |
+| `MAY` adicionar testes unitários (Vitest)                                                      | `npm test` é um placeholder hoje; não há suíte unitária configurada, mas nada impede adicioná-la |
+| `MAY` modificar `.github/workflows/pages.yml`                                                  | só se a mudança for intencional e explicitamente solicitada — é o único caminho de deploy        |
 
 ## Visão geral do projeto
 
