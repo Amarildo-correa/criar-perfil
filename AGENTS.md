@@ -6,12 +6,14 @@ Para arquitetura, design system e decisões de projeto, [DESIGN.md](DESIGN.md) �
 
 ## Restrições de escopo — leia antes de agir
 
-| Regra                                                                                          | Descrição                                                                                        |
-| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `MUST` consultar `DESIGN.md` antes de criar ou alterar qualquer feature em `src/`              | usar os tokens e mecanismos reais do design system — nunca gerar design/CSS genérico do zero     |
-| `MUST NOT` usar `aprendizado/` como referência de arquitetura, convenções ou revisão de código | são notas pessoais fora do escopo do projeto, mesmo se versionadas                               |
-| `MAY` adicionar testes unitários (Vitest)                                                      | `npm test` é um placeholder hoje; não há suíte unitária configurada, mas nada impede adicioná-la |
-| `MAY` modificar `.github/workflows/pages.yml`                                                  | só se a mudança for intencional e explicitamente solicitada — é o único caminho de deploy        |
+| Regra                                                                                          | Descrição                                                                                                                                                                                                                              |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MUST` consultar `DESIGN.md` antes de criar ou alterar qualquer feature em `src/`              | usar os tokens e mecanismos reais do design system — nunca gerar design/CSS genérico do zero                                                                                                                                           |
+| `MUST` ao criar um novo `.html` (feature), escrevê-lo em `src/` e usar `src/style.css` e `src/script.js` para novos estilos e scripts | ex.: `feed.html` fica em `src/`; estilos e scripts novos vão para os arquivos existentes, não inline |
+| `MUST` separar HTML, estilos e scripts em arquivos distintos ao escrever uma nova feature       | markup em `.html`, estilos em `.css`, lógica em `.js` — nunca `<style>`/`<script>` inline no HTML |
+| `MUST NOT` usar `aprendizado/` como referência de arquitetura, convenções ou revisão de código | são notas pessoais fora do escopo do projeto, mesmo se versionadas                                                                                                                                                                     |
+| `MAY` adicionar testes unitários (Vitest)                                                      | `npm test` é um placeholder hoje; não há suíte unitária configurada, mas nada impede adicioná-la                                                                                                                                       |
+| `MAY` modificar `.github/workflows/pages.yml`                                                  | só se a mudança for intencional e explicitamente solicitada — é o único caminho de deploy                                                                                                                                              |
 
 ## Visão geral do projeto
 
